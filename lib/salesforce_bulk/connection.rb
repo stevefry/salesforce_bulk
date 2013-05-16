@@ -79,7 +79,7 @@ module SalesforceBulk
     end
 
     def parse_instance()
-      @server_url['-api'] = '' if server_url['-api']
+      @server_url['-api'] = '' if @server_url['-api']
       @server_url.match(/https:\/\/([a-z]{2,2}[0-9]{1,2}.salesforce.com)/).captures[0]
     end
 
