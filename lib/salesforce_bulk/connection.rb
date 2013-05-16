@@ -36,7 +36,7 @@ module SalesforceBulk
       xml += "    </n1:login>"
       xml += "  </env:Body>"
       xml += "</env:Envelope>"
-      
+
       headers = Hash['Content-Type' => 'text/xml; charset=utf-8', 'SOAPAction' => 'login']
 
       response = post_xml(@@LOGIN_HOST, @@LOGIN_PATH, xml, headers)
@@ -45,9 +45,7 @@ module SalesforceBulk
 
       @session_id = response_parsed['Body'][0]['loginResponse'][0]['result'][0]['sessionId'][0]
       @server_url = response_parsed['Body'][0]['loginResponse'][0]['result'][0]['serverUrl'][0]
-      @instance = parse_instance()
-
-      @@INSTANCE_HOST = "#{@instance}.salesforce.com"
+      @@INSTANCE_HOST = parse_instance()
     end
 
     def post_xml(host, path, xml, headers)
@@ -81,8 +79,8 @@ module SalesforceBulk
     end
 
     def parse_instance()
-      @server_url =~ /https:\/\/([a-z]{2,2}[0-9]{1,2})-api/
-      @instance = $~.captures[0]
+      @server_url['-api'] = '' if server_url['-api']
+      @server_url.match(/https:\/\/([a-z]{2,2}[0-9]{1,2}.salesforce.com)/).captures[0]
     end
 
     def parse_response response
@@ -90,7 +88,7 @@ module SalesforceBulk
 
       if response.downcase.include?("faultstring") || response.downcase.include?("exceptionmessage")
         begin
-          
+
           if response.downcase.include?("faultstring")
             error_message = response_parsed["Body"][0]["Fault"][0]["faultstring"][0]
           elsif response.downcase.include?("exceptionmessage")
